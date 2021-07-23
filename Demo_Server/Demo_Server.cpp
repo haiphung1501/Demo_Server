@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "Demo_Server.h"
 #include "afxsock.h"
-#include <string>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -15,38 +14,41 @@
 
 CWinApp theApp;
 
-using namespace std;
-
 DWORD WINAPI function_cal(LPVOID arg)
 {
-	SOCKET* hConnected = (SOCKET*) arg;
+	SOCKET* hConnected = (SOCKET*)arg;
 	CSocket mysock;
 	//Chuyen ve lai CSocket
 	mysock.Attach(*hConnected);
 	string s;
-	string serverName;
-	
-	do {
-		fflush(stdin); 
-		mysock.Receive(&serverName, sizeof(serverName), 0);
-		cout << serverName << ":";
-		getline(cin, s);
-		if (s != "Thoat")
-		{
-			mysock.Send(&s, sizeof(s), 0);
-			mysock.Receive(&s, sizeof(s), 0);
-			cout << "Client: " << s << endl;
-		}
-		else break;
+	string clientName;
 
-	}while(true);
+	do {
+		fflush(stdin);
+		mysock.Receive(&clientName, sizeof(clientName), 0);
+		int mode;
+		cout << "1. Dang nhap: " << endl;
+		cout << "2. Dang ki: " << endl;
+		cout << "Nhap: ";
+		switch (mode)
+		{
+		case 1:
+		{
+			string id, pass;
+			cout << "Tai khoan: ";
+			getline(cin, s);
+
+		}
+		}
+
+	} while (true);
 	delete hConnected;
 	mysock.Close();
 	return 0;
 }
 
 int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
-{	
+{
 	int nRetCode = 0;
 
 	HMODULE hModule = ::GetModuleHandle(NULL);
@@ -67,20 +69,26 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 			CSocket server, s;
 			DWORD threadID;
 			HANDLE threadStatus;
-
-			server.Create(4567);
+			int port;
+			cout << "Nhap port muon host: ";
+			cin >> port;
+			cin.ignore();
+			server.Create(port);
 			do {
-				printf("Server lang nghe ket noi tu client\n");
-				server.Listen(2);
+				cout << "So client ket noi: ";
+				int clients;
+				cin >> clients;
+				cin.ignore();
+				server.Listen(clients);
 				server.Accept(s);
 				//Khoi tao con tro Socket
 				SOCKET* hConnected = new SOCKET();
-				//Chuyển đỏi CSocket thanh Socket
-				*hConnected	= s.Detach();
+				//Chuyá»ƒn Ä‘á»i CSocket thanh Socket
+				*hConnected = s.Detach();
 				//Khoi tao thread tuong ung voi moi client Connect vao server.
 				//Nhu vay moi client se doc lap nhau, khong phai cho doi tung client xu ly rieng
 				threadStatus = CreateThread(NULL, 0, function_cal, hConnected, 0, &threadID);
-			}while(1);
+			} while (1);
 		}
 	}
 	else
@@ -92,5 +100,4 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 
 	return nRetCode;
 }
-
 
