@@ -4,16 +4,38 @@
 #include "stdafx.h"
 #include "Demo_Server.h"
 #include "afxsock.h"
+#include <string>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+using namespace std;
 
 // The one and only application object
 
 CWinApp theApp;
 
+bool checkLogin(string user, string pass) {
+	ifstream ifs("login.txt");
+	if (!ifs.is_open()) {
+		cout << "Error in Opening! File Not Found!!" << endl;
+		cout << "\n***Press Enter to continue";
+		return 0;
+	}
+	string _user, _pass;
+	while (!ifs.eof()) {
+		getline(cin, _user, '-');
+		getline(cin, _pass);
+		if (_user == user && _pass == pass)
+		{
+			ifs.close();
+			return 1;
+		}
+	}
+	ifs.close();
+	return 0; // deo co pass
+}
 DWORD WINAPI function_cal(LPVOID arg)
 {
 	SOCKET* hConnected = (SOCKET*)arg;
@@ -30,6 +52,7 @@ DWORD WINAPI function_cal(LPVOID arg)
 		cout << "1. Dang nhap: " << endl;
 		cout << "2. Dang ki: " << endl;
 		cout << "Nhap: ";
+		cin >> mode;
 		switch (mode)
 		{
 		case 1:
@@ -37,7 +60,6 @@ DWORD WINAPI function_cal(LPVOID arg)
 			string id, pass;
 			cout << "Tai khoan: ";
 			getline(cin, s);
-
 		}
 		}
 
