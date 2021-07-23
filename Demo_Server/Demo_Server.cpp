@@ -18,7 +18,7 @@ CWinApp theApp;
 
 bool checkLogin(string user, string pass) {
 	ifstream ifs("login.txt");
-	if (!ifs.is_open()) {
+	if (ifs.fail()) {
 		cout << "Error in Opening! File Not Found!!" << endl;
 		cout << "\n***Press Enter to continue";
 		return 0;
@@ -34,7 +34,7 @@ bool checkLogin(string user, string pass) {
 		}
 	}
 	ifs.close();
-	return 0; // deo co pass
+	return 0; // wrong password or loi~ gi do
 }
 DWORD WINAPI function_cal(LPVOID arg)
 {
