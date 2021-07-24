@@ -117,15 +117,16 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 			CSocket server;
 			DWORD threadID;
 			HANDLE threadStatus;
-			int port, clients;
-			char sAdd[100];
-			cout << "Enter port to host: ";
-			cin >> port;
-			cin.ignore();
-			cout << "Enter IP to host: ";
-			cin.getline(sAdd, 100);
-			cout << "Enter number of Client(s): ";
-			cin >> clients;
+			int port = 1234;
+			int clients = 1;
+			char sAdd[] = "127.0.0.1";
+			//cout << "Enter port to host: ";
+			//cin >> port;
+			//cin.ignore();
+			//cout << "Enter IP to host: ";
+			//cin.getline(sAdd, 100);
+			//cout << "Enter number of Client(s): ";
+			//cin >> clients;
 			CSocket* s = new CSocket[clients];
 			server.Create(port, 1, CA2W(sAdd));
 			for ( int i = 0; i < clients; ++i){
@@ -142,6 +143,8 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 				threadStatus = CreateThread(NULL, 0, function_cal, hConnected, 0, &threadID);
 				s[i].Attach(*hConnected);
 			}
+
+			server.Close();
 		}
 	}
 	else
