@@ -114,29 +114,35 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 		{
 			// TODO: code your application's behavior here.
 			AfxSocketInit(NULL);
-			CSocket server, s;
+			CSocket server;
 			DWORD threadID;
 			HANDLE threadStatus;
-			int port;
-			cout << "Nhap port muon host: ";
+			int port, clients;
+			char sAdd[100];
+			cout << "Enter port to host: ";
 			cin >> port;
 			cin.ignore();
+			cout << "Enter IP to host: ";
+			cin.getline(sAdd, 100);
 			server.Create(port);
-			do {
-				cout << "So client ket noi: ";
-				int clients;
-				cin >> clients;
-				cin.ignore();
-				server.Listen(clients);
-				server.Accept(s);
+			cout << "Enter number of Client(s): ";
+			cin >> clients;
+			CSocket* s = new CSocket[clients];
+			server.Create(port, 1, CA2W(sAdd));
+			for ( int i = 0; i < clients; ++i){
+				cout << "Server is Listening from Clients\n";
+				server.Listen();
+				server.Accept(s[i]);
+				cout << "Accepted Client " << i + 1 << endl;
 				//Khoi tao con tro Socket
 				SOCKET* hConnected = new SOCKET();
 				//Chuyá»ƒn Ä‘á»i CSocket thanh Socket
-				*hConnected = s.Detach();
+				*hConnected = s[i].Detach();
 				//Khoi tao thread tuong ung voi moi client Connect vao server.
 				//Nhu vay moi client se doc lap nhau, khong phai cho doi tung client xu ly rieng
 				threadStatus = CreateThread(NULL, 0, function_cal, hConnected, 0, &threadID);
-			} while (1);
+				s[i].Attach(*hConnected);
+			}
 		}
 	}
 	else
