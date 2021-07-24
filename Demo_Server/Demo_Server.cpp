@@ -65,28 +65,35 @@ DWORD WINAPI function_cal(LPVOID arg)
 	CSocket mysock;
 	//Chuyen ve lai CSocket
 	mysock.Attach(*hConnected);
-	string s;
-	string clientName;
 
+	int number_continue = 0;
+	//Code
 	do {
 		fflush(stdin);
-		mysock.Receive(&clientName, sizeof(clientName), 0);
-		int mode;
-		cout << "1. Dang nhap: " << endl;
-		cout << "2. Dang ki: " << endl;
-		cout << "Nhap: ";
-		cin >> mode;
-		switch (mode)
-		{
-		case 1:
-		{
-			string id, pass;
-			cout << "Tai khoan: ";
-			getline(cin, s);
-		}
-		}
+		int number_a, number_b, number_result;
+		char letter;
+		//Nhan phep toan
+		mysock.Receive(&letter, sizeof(letter), 0);
+		//Nhan so thu nhat
+		mysock.Receive(&number_a, sizeof(number_a), 0);
+		//Nhan so thu hai
+		mysock.Receive(&number_b, sizeof(number_b), 0);
 
-	} while (true);
+		//So sanh neu client muon thuc hien phep cong
+		if (letter == '+')
+			number_result = number_a + number_b;
+		else if (letter == '-')
+			number_result = number_a - number_b;
+
+		//Gui ket qua tinh toan cho client
+		mysock.Send(&number_result, sizeof(number_result), 0);
+
+		//Nhan number xem client co tiep tuc hay khong
+		mysock.Receive(&number_continue, sizeof(number_continue), 0);
+
+	} while (number_continue);
+
+	//Code
 	delete hConnected;
 	mysock.Close();
 	return 0;
@@ -111,11 +118,12 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 		{
 			// TODO: code your application's behavior here.
 			AfxSocketInit(NULL);
-			CSocket server;
+			CSocket server, s;
 			DWORD threadID;
 			HANDLE threadStatus;
 			int port = 1234;
 			int clients = 1;
+			int i = 1;
 			char sAdd[] = "127.0.0.1";
 			//cout << "Enter port to host: ";
 			//cin >> port;
@@ -124,24 +132,26 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 			//cin.getline(sAdd, 100);
 			//cout << "Enter number of Client(s): ";
 			//cin >> clients;
-			CSocket* s = new CSocket[clients];
+			//CSocket* s = new CSocket[clients];
 			server.Create(port, 1, CA2W(sAdd));
-			for (int i = 0; i < clients; ++i) {
+			//for (int i = 0; i < clients; i++)
+			do {
 				cout << "Server is Listening from Clients\n";
 				server.Listen();
-				server.Accept(s[i]);
-				cout << "Accepted Client " << i + 1 << endl;
+				server.Accept(s);
+				cout << "Accepted Client number " << i << endl;
 				//Khoi tao con tro Socket
 				SOCKET* hConnected = new SOCKET();
 				//Chuyá»ƒn Ä‘á»i CSocket thanh Socket
-				*hConnected = s[i].Detach();
+				*hConnected = s.Detach();
 				//Khoi tao thread tuong ung voi moi client Connect vao server.
 				//Nhu vay moi client se doc lap nhau, khong phai cho doi tung client xu ly rieng
 				threadStatus = CreateThread(NULL, 0, function_cal, hConnected, 0, &threadID);
-				s[i].Attach(*hConnected);
-			}
+				//s.Attach(*hConnected);
+				++i;
+			} while (1);
 
-			server.Close();
+			//server.Close();
 		}
 	}
 	else
