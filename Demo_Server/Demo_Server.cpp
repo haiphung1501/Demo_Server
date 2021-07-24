@@ -155,5 +155,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	}
 
 	return nRetCode;
+
+	//TEST
 }
 
