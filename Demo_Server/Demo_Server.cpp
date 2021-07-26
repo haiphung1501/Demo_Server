@@ -2,6 +2,7 @@
 #include "Demo_Server.h"
 #include "afxsock.h"
 #include <string>
+#include <iostream>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -70,7 +71,8 @@ DWORD WINAPI function_cal(LPVOID arg)
 	mysock.Attach(*hConnected);
 
 	int number_continue = 1;
-	int choice;
+	int choice, check;
+	string user, pass;
 	//Code
 	do {
 		fflush(stdin);
@@ -79,24 +81,24 @@ DWORD WINAPI function_cal(LPVOID arg)
 		if (choice == 0) {
 			number_continue = 0;
 		}
-		if (choice == 1) {
+		else if (choice == 1) {
 			// Dang Nhap
-			string user, pass;
 			mysock.Receive(&user, sizeof(user), 0);
 			mysock.Receive(&pass, sizeof(pass), 0);
 
-			int check = checkLogin(user, pass);
+			check = checkLogin(user, pass);
 			mysock.Send(&check, sizeof(check), 0);
 		}
-		if (choice == 2) {
-			string user, pass;
+		else if (choice == 2) {
 			mysock.Receive(&user, sizeof(user), 0);
 			mysock.Receive(&pass, sizeof(pass), 0);
 
-			int check = Register(user, pass);
+			check = Register(user, pass);
 			mysock.Send(&check, sizeof(check), 0);
 		}
-		cout << "Here"; 
+		else {
+			continue;
+		}
 	} while (number_continue);
 
 	//Code
