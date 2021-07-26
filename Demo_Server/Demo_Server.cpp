@@ -74,7 +74,6 @@ DWORD WINAPI function_cal(LPVOID arg)
 	//Code
 	do {
 		fflush(stdin);
-		string user, pass;
 		mysock.Receive(&choice, sizeof(choice), 0);
 		cout << choice;
 		if (choice == 0) {
@@ -82,6 +81,7 @@ DWORD WINAPI function_cal(LPVOID arg)
 		}
 		if (choice == 1) {
 			// Dang Nhap
+			string user, pass;
 			mysock.Receive(&user, sizeof(user), 0);
 			mysock.Receive(&pass, sizeof(pass), 0);
 
@@ -89,7 +89,7 @@ DWORD WINAPI function_cal(LPVOID arg)
 			mysock.Send(&check, sizeof(check), 0);
 		}
 		if (choice == 2) {
-			// Dang ki
+			string user, pass;
 			mysock.Receive(&user, sizeof(user), 0);
 			mysock.Receive(&pass, sizeof(pass), 0);
 
