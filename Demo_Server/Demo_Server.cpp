@@ -13,17 +13,20 @@ using namespace std;
 
 CWinApp theApp;
 
-bool checkLogin(string user, string pass) {
+string charToString(char* arr) {
+	string s(arr);
+	return s;
+}
+int checkLogin(string user, string pass) {
 	ifstream ifs("login.txt");
 	if (ifs.fail()) {
 		cout << "Error in Opening! File Not Found!!" << endl;
-		cout << "\n***Press Enter to continue";
 		return 0;
 	}
 	string _user, _pass;
 	while (!ifs.eof()) {
-		getline(cin, _user, '-');
-		getline(cin, _pass);
+		getline(ifs, _user, '-');
+		getline(ifs, _pass);
 		if (_user == user && _pass == pass)
 		{
 			ifs.close();
@@ -33,7 +36,7 @@ bool checkLogin(string user, string pass) {
 	ifs.close();
 	return 0; // wrong password or loi~ gi do
 }
-bool Register(string user, string pass) {
+int Register(string user, string pass) {
 	ifstream ifs("login.txt");
 	if (ifs.fail()) {
 		cout << "Error in Opening! File Not Found!!" << endl;
@@ -66,33 +69,38 @@ DWORD WINAPI function_cal(LPVOID arg)
 	//Chuyen ve lai CSocket
 	mysock.Attach(*hConnected);
 
-	int number_continue = 0;
+	int number_continue = 1;
+	int choice;
 	//Code
 	do {
 		fflush(stdin);
-		int number_a, number_b, number_result;
-		char letter;
-		//Nhan phep toan
-		mysock.Receive(&letter, sizeof(letter), 0);
-		//Nhan so thu nhat
-		mysock.Receive(&number_a, sizeof(number_a), 0);
-		//Nhan so thu hai
-		mysock.Receive(&number_b, sizeof(number_b), 0);
+		string user, pass;
+		mysock.Receive(&choice, sizeof(choice), 0);
+		cout << choice;
+		if (choice == 0) {
+			number_continue = 0;
+		}
+		if (choice == 1) {
+			// Dang Nhap
+			mysock.Receive(&user, sizeof(user), 0);
+			mysock.Receive(&pass, sizeof(pass), 0);
 
-		//So sanh neu client muon thuc hien phep cong
-		if (letter == '+')
-			number_result = number_a + number_b;
-		else if (letter == '-')
-			number_result = number_a - number_b;
+			int check = checkLogin(user, pass);
+			mysock.Send(&check, sizeof(check), 0);
+		}
+		if (choice == 2) {
+			// Dang ki
+			mysock.Receive(&user, sizeof(user), 0);
+			mysock.Receive(&pass, sizeof(pass), 0);
 
-		//Gui ket qua tinh toan cho client
-		mysock.Send(&number_result, sizeof(number_result), 0);
-
-		//Nhan number xem client co tiep tuc hay khong
-		mysock.Receive(&number_continue, sizeof(number_continue), 0);
-
+			int check = Register(user, pass);
+			mysock.Send(&check, sizeof(check), 0);
+		}
+		cout << "Here"; 
 	} while (number_continue);
 
+	//Code
+	cout << "Function Server called";
 	//Code
 	delete hConnected;
 	mysock.Close();
