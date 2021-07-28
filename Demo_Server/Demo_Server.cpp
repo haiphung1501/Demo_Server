@@ -139,10 +139,10 @@ DWORD WINAPI function_cal(LPVOID arg)
 	} while (number_continue);
 
 	//Code
-	cout << "Function Server called";
+	mysock.Close();
+	cout << "Client Disconnected!";
 	//Code
 	delete hConnected;
-	mysock.Close();
 	return 0;
 }
 
@@ -165,40 +165,56 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 		{
 			// TODO: code your application's behavior here.
 			AfxSocketInit(NULL);
-			CSocket server, s;
+			CSocket server;
 			DWORD threadID;
 			HANDLE threadStatus;
 			int port = 1234;
-			int clients = 2;
-			int i = 1;
+			int clients;
 			char sAdd[] = "127.0.0.1";
 			//cout << "Enter port to host: ";
 			//cin >> port;
 			//cin.ignore();
 			//cout << "Enter IP to host: ";
 			//cin.getline(sAdd, 100);
-			//cout << "Enter number of Client(s): ";
-			//cin >> clients;
-			//CSocket* s = new CSocket[clients];
+			cout << "Enter number of Client(s): ";
+			cin >> clients;
+			CSocket* s = new CSocket[clients];
 			server.Create(port, 1, CA2W(sAdd));
-			//for (int i = 0; i < clients; i++)
-			do {
+			for (int i = 0; i < clients; i++) {
+			//do {
 				cout << "Server is Listening from Clients\n";
 				server.Listen();
-				server.Accept(s);
-				cout << "Accepted Client number " << i << endl;
+				server.Accept(s[i]);
+				cout << "Accepted Client number " << i + 1 << endl;
 				//Khoi tao con tro Socket
 				SOCKET* hConnected = new SOCKET();
 				//Chuyá»ƒn Ä‘á»i CSocket thanh Socket
-				*hConnected = s.Detach();
+				*hConnected = s[i].Detach();
 				//Khoi tao thread tuong ung voi moi client Connect vao server.
 				//Nhu vay moi client se doc lap nhau, khong phai cho doi tung client xu ly rieng
 				threadStatus = CreateThread(NULL, 0, function_cal, hConnected, 0, &threadID);
-				//s.Attach(*hConnected);
-				++i;
-			} while (1);
-
-			//server.Close();
+				s[i].Attach(*hConnected);
+			}
+			server.Close();
+			string stop_sign;
+			cin.ignore();
+			while (1) {
+				cout << "Press stop to stop server and send notifications to all clients\n";
+				getline(cin, stop_sign);
+				if (stop_sign == "stop") {
+					for (int i = 0; i < clients; ++i) {
+						try {
+							s[i].Send(&stop_sign, sizeof(stop_sign), 0);
+						}
+						catch (const exception& e) {
+							cout << "Error";
+						}
+						cout << endl << "SERVER STOP WORKING! " << endl;
+						_getch();
+						exit(0);
+					}
+				}
+			}
 		}
 	}
 	else
@@ -207,9 +223,6 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 		_tprintf(_T("Fatal Error: GetModuleHandle failed\n"));
 		nRetCode = 1;
 	}
-
 	return nRetCode;
-
-	//TEST
 }
 
