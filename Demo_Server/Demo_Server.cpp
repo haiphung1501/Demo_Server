@@ -71,32 +71,60 @@ DWORD WINAPI function_cal(LPVOID arg)
 
 	int number_continue = 1;
 	int choice;
+	string user, pass;
+	int check;
+	
 	//Code
 	do {
 		fflush(stdin);
 		mysock.Receive(&choice, sizeof(choice), 0);
-		cout << choice;
+		
+		cout << choice << endl;
 		if (choice == 0) {
 			number_continue = 0;
 		}
 		if (choice == 1) {
 			// Dang Nhap
-			string user, pass;
 			mysock.Receive(&user, sizeof(user), 0);
 			mysock.Receive(&pass, sizeof(pass), 0);
-
-			int check = checkLogin(user, pass);
+			check = checkLogin(user, pass);
 			mysock.Send(&check, sizeof(check), 0);
+			if (check == 1)
+				number_continue = 0;
 		}
 		if (choice == 2) {
-			string user, pass;
 			mysock.Receive(&user, sizeof(user), 0);
 			mysock.Receive(&pass, sizeof(pass), 0);
 
-			int check = Register(user, pass);
+			check = Register(user, pass);
 			mysock.Send(&check, sizeof(check), 0);
 		}
 		cout << "Here";
+	} while (number_continue);
+	number_continue = 1;
+	int type, line;
+	string dateString, typeString;
+	Date date;
+	double amount;
+	do {
+		mysock.Receive(&type, sizeof(type), 0);
+		if (type != 0)
+		{
+			mysock.Receive(&dateString, sizeof(dateString), 0);
+			date = stringToDate(dateString);
+			line = checkDate(date);
+			typeString = exchangeType(type);
+			if (line != -1)
+			{
+				amount = getRate(line, typeString);
+				mysock.Send(&typeString, sizeof(typeString), 0);
+				mysock.Send(&amount, sizeof(amount), 0);
+			}
+			else
+				cout << "Error";
+		}
+		else
+			number_continue = 0;
 	} while (number_continue);
 
 	//Code
@@ -130,7 +158,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 			DWORD threadID;
 			HANDLE threadStatus;
 			int port = 1234;
-			int clients = 1;
+			int clients = 2;
 			int i = 1;
 			char sAdd[] = "127.0.0.1";
 			//cout << "Enter port to host: ";

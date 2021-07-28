@@ -44,4 +44,12 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="currency.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="login.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

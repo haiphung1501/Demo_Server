@@ -32,5 +32,13 @@
 using namespace std;
 // TODO: reference additional headers your program requires here
 
-void userFile(string filename);
-void checkID(string filename);
+struct Date
+{
+	int day;
+	int month;
+	int year;
+};
+Date stringToDate(string s);
+int checkDate(Date x);
+double getRate(int line, string type);
+string exchangeType(int type);
