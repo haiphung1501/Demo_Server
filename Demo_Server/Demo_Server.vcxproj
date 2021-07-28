@@ -80,6 +80,7 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="curl\curl.h" />
     <ClInclude Include="Demo_Server.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />

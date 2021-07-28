@@ -82,3 +82,75 @@ string exchangeType(int type)
 	}
 	return s;
 }
+static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
+{
+	((std::string*)userp)->append((char*)contents, size * nmemb);
+	return size * nmemb;
+}
+string callAPI() {
+	CURL* curl;
+	CURLcode res;
+	std::string readBuffer;
+	std::string apikey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2Mjg2OTc4ODksImlhdCI6MTYyNzQwMTg4OSwic2NvcGUiOiJleGNoYW5nZV9yYXRlIiwicGVybWlzc2lvbiI6MH0.CNOXvN2gZPvSM0VqUtaLobYKL4e6RsmNYw8kd-LC8Go";
+
+	std::string apiHeader = "Authorization: Bearer " + apikey;
+
+	struct curl_slist* headers = NULL; // init to NULL is important
+
+	headers = curl_slist_append(headers, "Accept: application/json");
+	headers = curl_slist_append(headers, "Content-Type: application/json");
+	headers = curl_slist_append(headers, "charsets: utf-8");
+	headers = curl_slist_append(headers, apiHeader.c_str());
+
+	curl = curl_easy_init();
+	if (curl)
+	{
+		std::string url = "https://vapi.vnappmob.com/api/v2/exchange_rate/sbv";
+
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+		curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
+
+		res = curl_easy_perform(curl);
+		if (res != CURLE_OK)
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+				curl_easy_strerror(res));
+
+		curl_easy_cleanup(curl);
+	}
+	//system("CLS");
+	return readBuffer;
+}
+vector <Currency> onlineData() {
+	ofstream ofs("result.txt");
+	ofs << callAPI();
+	ofs.close();
+	string ch;
+	double temp;
+	vector <Currency> cur;
+	ifstream ifs("result.txt");
+	getline(ifs, ch, ':');
+	for (int i = 0; i < 7; ++i) {
+		cur.push_back(Currency());
+		getline(ifs, ch, ':');
+		ifs >> temp;
+		cur[i].buy = temp;
+		getline(ifs, ch, ':');
+		getline(ifs, ch, ',');
+		ch.erase(std::remove(ch.begin(), ch.end(), '\"'), ch.end());
+		cur[i].name = ch;
+		getline(ifs, ch, ':');
+		ifs >> temp;
+		cur[i].sell = temp;
+	}
+	return cur;
+}
+Currency FindClientCur(int pos, vector <Currency> cur) {
+	return cur[pos - 1];
+}

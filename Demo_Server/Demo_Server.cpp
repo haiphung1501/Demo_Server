@@ -1,7 +1,6 @@
 ﻿#include "stdafx.h"
 #include "Demo_Server.h"
 #include "afxsock.h"
-#include <string>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -79,7 +78,6 @@ DWORD WINAPI function_cal(LPVOID arg)
 		fflush(stdin);
 		mysock.Receive(&choice, sizeof(choice), 0);
 		
-		cout << choice << endl;
 		if (choice == 0) {
 			number_continue = 0;
 		}
@@ -99,7 +97,6 @@ DWORD WINAPI function_cal(LPVOID arg)
 			check = Register(user, pass);
 			mysock.Send(&check, sizeof(check), 0);
 		}
-		cout << "Here";
 	} while (number_continue);
 	number_continue = 1;
 	int type, line;
@@ -107,24 +104,38 @@ DWORD WINAPI function_cal(LPVOID arg)
 	Date date;
 	double amount;
 	do {
-		mysock.Receive(&type, sizeof(type), 0);
-		if (type != 0)
-		{
-			mysock.Receive(&dateString, sizeof(dateString), 0);
-			date = stringToDate(dateString);
-			line = checkDate(date);
-			typeString = exchangeType(type);
-			if (line != -1)
-			{
-				amount = getRate(line, typeString);
-				mysock.Send(&typeString, sizeof(typeString), 0);
-				mysock.Send(&amount, sizeof(amount), 0);
+		mysock.Receive(&choice, sizeof(choice), 0);
+		if (choice == 0)
+			number_continue = 0;
+		if (choice == 1) {
+			mysock.Receive(&choice, sizeof(choice), 0);
+			if (choice != 0) {
+				Currency cur = FindClientCur(choice, onlineData());
+				mysock.Send(&cur.name, sizeof(cur.name), 0);
+				mysock.Send(&cur.sell, sizeof(cur.sell), 0);
+				mysock.Send(&cur.buy, sizeof(cur.buy), 0);
 			}
 			else
-				cout << "Error";
+				continue;
 		}
-		else
-			number_continue = 0;
+		if (choice == 2) {
+			mysock.Receive(&type, sizeof(type), 0);
+			if (type != 0)
+			{
+				mysock.Receive(&dateString, sizeof(dateString), 0);
+				date = stringToDate(dateString);
+				line = checkDate(date);
+				typeString = exchangeType(type);
+				if (line != -1)
+				{
+					amount = getRate(line, typeString);
+					mysock.Send(&typeString, sizeof(typeString), 0);
+					mysock.Send(&amount, sizeof(amount), 0);
+				}
+				else
+					cout << "Error";
+			}
+		}
 	} while (number_continue);
 
 	//Code
