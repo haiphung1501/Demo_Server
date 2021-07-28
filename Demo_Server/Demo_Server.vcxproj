@@ -96,7 +96,12 @@
     <ResourceCompile Include="Demo_Server.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="currency.txt" />
+    <Text Include="DATE.txt" />
+    <Text Include="EUR.txt" />
     <Text Include="login.txt" />
+    <Text Include="USD.txt" />
+    <Text Include="YEN.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

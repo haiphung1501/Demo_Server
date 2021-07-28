@@ -2,7 +2,6 @@
 #include "Demo_Server.h"
 #include "afxsock.h"
 #include <string>
-#include <iostream>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -63,15 +62,6 @@ int Register(string user, string pass) {
 	ofs.close();
 	return 1;
 }
-string currentDateTime() {
-	time_t     now = time(0);
-	struct tm  tstruct;
-	char       buf[80];
-	tstruct = *localtime(&now);
-	strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
-
-	return buf;
-}
 DWORD WINAPI function_cal(LPVOID arg)
 {
 	SOCKET* hConnected = (SOCKET*)arg;
@@ -80,35 +70,61 @@ DWORD WINAPI function_cal(LPVOID arg)
 	mysock.Attach(*hConnected);
 
 	int number_continue = 1;
-	int choice, check;
+	int choice;
 	string user, pass;
+	int check;
+	
 	//Code
-	cout << currentDateTime();
 	do {
 		fflush(stdin);
 		mysock.Receive(&choice, sizeof(choice), 0);
-		cout << choice;
+		
+		cout << choice << endl;
 		if (choice == 0) {
 			number_continue = 0;
 		}
-		else if (choice == 1) {
+		if (choice == 1) {
 			// Dang Nhap
 			mysock.Receive(&user, sizeof(user), 0);
 			mysock.Receive(&pass, sizeof(pass), 0);
-
 			check = checkLogin(user, pass);
 			mysock.Send(&check, sizeof(check), 0);
+			if (check == 1)
+				number_continue = 0;
 		}
-		else if (choice == 2) {
+		if (choice == 2) {
 			mysock.Receive(&user, sizeof(user), 0);
 			mysock.Receive(&pass, sizeof(pass), 0);
 
 			check = Register(user, pass);
 			mysock.Send(&check, sizeof(check), 0);
 		}
-		else {
-			break;
+		cout << "Here";
+	} while (number_continue);
+	number_continue = 1;
+	int type, line;
+	string dateString, typeString;
+	Date date;
+	double amount;
+	do {
+		mysock.Receive(&type, sizeof(type), 0);
+		if (type != 0)
+		{
+			mysock.Receive(&dateString, sizeof(dateString), 0);
+			date = stringToDate(dateString);
+			line = checkDate(date);
+			typeString = exchangeType(type);
+			if (line != -1)
+			{
+				amount = getRate(line, typeString);
+				mysock.Send(&typeString, sizeof(typeString), 0);
+				mysock.Send(&amount, sizeof(amount), 0);
+			}
+			else
+				cout << "Error";
 		}
+		else
+			number_continue = 0;
 	} while (number_continue);
 
 	//Code
@@ -142,8 +158,8 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 			DWORD threadID;
 			HANDLE threadStatus;
 			int port = 1234;
-			int clients = 1;
-			int i = 0;
+			int clients = 2;
+			int i = 1;
 			char sAdd[] = "127.0.0.1";
 			//cout << "Enter port to host: ";
 			//cin >> port;
@@ -159,7 +175,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 				cout << "Server is Listening from Clients\n";
 				server.Listen();
 				server.Accept(s);
-				cout << "Accepted Client number " << i + 1 << endl;
+				cout << "Accepted Client number " << i << endl;
 				//Khoi tao con tro Socket
 				SOCKET* hConnected = new SOCKET();
 				//Chuyá»ƒn Ä‘á»i CSocket thanh Socket
@@ -169,7 +185,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 				threadStatus = CreateThread(NULL, 0, function_cal, hConnected, 0, &threadID);
 				//s.Attach(*hConnected);
 				++i;
-			} while ( i <= clients + 1);
+			} while (1);
 
 			//server.Close();
 		}
