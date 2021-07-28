@@ -51,5 +51,17 @@
     <Text Include="login.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="DATE.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="EUR.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="USD.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="YEN.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
