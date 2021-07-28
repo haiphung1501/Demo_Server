@@ -63,6 +63,15 @@ int Register(string user, string pass) {
 	ofs.close();
 	return 1;
 }
+string currentDateTime() {
+	time_t     now = time(0);
+	struct tm  tstruct;
+	char       buf[80];
+	tstruct = *localtime(&now);
+	strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+
+	return buf;
+}
 DWORD WINAPI function_cal(LPVOID arg)
 {
 	SOCKET* hConnected = (SOCKET*)arg;
@@ -74,6 +83,7 @@ DWORD WINAPI function_cal(LPVOID arg)
 	int choice, check;
 	string user, pass;
 	//Code
+	cout << currentDateTime();
 	do {
 		fflush(stdin);
 		mysock.Receive(&choice, sizeof(choice), 0);
@@ -97,7 +107,7 @@ DWORD WINAPI function_cal(LPVOID arg)
 			mysock.Send(&check, sizeof(check), 0);
 		}
 		else {
-			continue;
+			break;
 		}
 	} while (number_continue);
 
@@ -133,7 +143,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 			HANDLE threadStatus;
 			int port = 1234;
 			int clients = 1;
-			int i = 1;
+			int i = 0;
 			char sAdd[] = "127.0.0.1";
 			//cout << "Enter port to host: ";
 			//cin >> port;
@@ -149,7 +159,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 				cout << "Server is Listening from Clients\n";
 				server.Listen();
 				server.Accept(s);
-				cout << "Accepted Client number " << i << endl;
+				cout << "Accepted Client number " << i + 1 << endl;
 				//Khoi tao con tro Socket
 				SOCKET* hConnected = new SOCKET();
 				//Chuyá»ƒn Ä‘á»i CSocket thanh Socket
@@ -159,7 +169,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 				threadStatus = CreateThread(NULL, 0, function_cal, hConnected, 0, &threadID);
 				//s.Attach(*hConnected);
 				++i;
-			} while (1);
+			} while ( i <= clients + 1);
 
 			//server.Close();
 		}
