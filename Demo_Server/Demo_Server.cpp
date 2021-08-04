@@ -67,11 +67,9 @@ DWORD WINAPI function_cal(LPVOID arg)
 	CSocket mysock;
 	//Chuyen ve lai CSocket
 	mysock.Attach(*hConnected);
-
 	int number_continue = 1;
-	int choice;
+	int choice, choice_dummy, check;
 	string user, pass;
-	int check;
 	
 	//Code
 	do {
@@ -103,47 +101,49 @@ DWORD WINAPI function_cal(LPVOID arg)
 	string dateString, typeString;
 	Date date;
 	double amount;
-	do {
-		mysock.Receive(&choice, sizeof(choice), 0);
-		if (choice == 0)
-			number_continue = 0;
-		if (choice == 1) {
-			mysock.Receive(&choice, sizeof(choice), 0);
-			if (choice != 0) {
-				Currency cur = FindClientCur(choice, onlineData());
-				mysock.Send(&cur.name, sizeof(cur.name), 0);
-				mysock.Send(&cur.sell, sizeof(cur.sell), 0);
-				mysock.Send(&cur.buy, sizeof(cur.buy), 0);
-			}
-			else
-				continue;
-		}
-		if (choice == 2) {
-			mysock.Receive(&type, sizeof(type), 0);
-			if (type != 0)
-			{
-				mysock.Receive(&dateString, sizeof(dateString), 0);
-				date = stringToDate(dateString);
-				line = checkDate(date);
-				typeString = exchangeType(type);
-				if (line != -1)
-				{
-					amount = getRate(line, typeString);
-					mysock.Send(&typeString, sizeof(typeString), 0);
-					mysock.Send(&amount, sizeof(amount), 0);
+	if (choice != 0) {
+		do {
+			fflush(stdin);
+			mysock.Receive(&choice_dummy, sizeof(choice_dummy), 0);
+			if (choice_dummy == 0)
+				break;
+			else if (choice_dummy == 1) {
+				mysock.Receive(&choice_dummy, sizeof(choice_dummy), 0);
+				if (choice_dummy != 0) {
+					Currency cur = FindClientCur(choice_dummy, onlineData());
+					mysock.Send(&cur.name, sizeof(cur.name), 0);
+					mysock.Send(&cur.sell, sizeof(cur.sell), 0);
+					mysock.Send(&cur.buy, sizeof(cur.buy), 0);
 				}
 				else
-					cout << "Error";
+					continue;
 			}
-		}
-	} while (number_continue);
-
+			else if (choice_dummy == 2) {
+				mysock.Receive(&type, sizeof(type), 0);
+				if (type != 0)
+				{
+					mysock.Receive(&dateString, sizeof(dateString), 0);
+					date = stringToDate(dateString);
+					line = checkDate(date);
+					typeString = exchangeType(type);
+					if (line != -1)
+					{
+						amount = getRate(line, typeString);
+						mysock.Send(&typeString, sizeof(typeString), 0);
+						mysock.Send(&amount, sizeof(amount), 0);
+					}
+					else
+						cout << "Error";
+				}
+			}
+		} while (number_continue);
+	}
 	//Code
 	mysock.Close();
 	cout << "Client Disconnected!";
 	//Code
 	delete hConnected;
-	return 0;
+	return 100;
 }
 
 int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
@@ -168,14 +168,14 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 			CSocket server;
 			DWORD threadID;
 			HANDLE threadStatus;
-			int port = 1234;
+			int port;
 			int clients;
-			char sAdd[] = "127.0.0.1";
-			//cout << "Enter port to host: ";
-			//cin >> port;
-			//cin.ignore();
-			//cout << "Enter IP to host: ";
-			//cin.getline(sAdd, 100);
+			char sAdd[30];
+			cout << "Enter port to host: ";
+			cin >> port;
+			cin.ignore();
+			cout << "Enter IP to host: ";
+			cin.getline(sAdd, 100);
 			cout << "Enter number of Client(s): ";
 			cin >> clients;
 			CSocket* s = new CSocket[clients];
@@ -199,7 +199,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 			string stop_sign;
 			cin.ignore();
 			while (1) {
-				cout << "Press stop to stop server and send notifications to all clients\n";
+				cout << "Press 'stop' to stop server and send notifications to all clients\n";
 				getline(cin, stop_sign);
 				if (stop_sign == "stop") {
 					for (int i = 0; i < clients; ++i) {
@@ -209,10 +209,10 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 						catch (const exception& e) {
 							cout << "Error";
 						}
-						cout << endl << "SERVER STOP WORKING! " << endl;
-						_getch();
-						exit(0);
 					}
+					cout << endl << "SERVER STOP WORKING! " << endl;
+					_getch();
+					exit(0);
 				}
 			}
 		}

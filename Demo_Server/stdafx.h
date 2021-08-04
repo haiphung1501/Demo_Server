@@ -51,6 +51,7 @@ int checkDate(Date x);
 double getRate(int line, string type);
 string exchangeType(int type);
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
-string callAPI();
+string getAPIkey();
+string getHTTPRequest();
 vector <Currency> onlineData();
 Currency FindClientCur(int pos, vector <Currency> cur);

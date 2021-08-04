@@ -87,11 +87,45 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
 	((std::string*)userp)->append((char*)contents, size * nmemb);
 	return size * nmemb;
 }
-string callAPI() {
+string getAPIkey() {
+	CURL* c = curl_easy_init();
+	string readBuffer;
+	struct curl_slist* headers = NULL; // init to NULL is important
+
+	headers = curl_slist_append(headers, "Accept: application/json");
+	headers = curl_slist_append(headers, "Content-Type: application/json");
+	headers = curl_slist_append(headers, "charsets: utf-8");
+	headers = curl_slist_append(headers, "Accept: text/html");
+	if (c)
+	{
+		//curl_easy_setopt(c, CURLOPT_VERBOSE, 1L);
+		curl_easy_setopt(c, CURLOPT_URL, "https://vapi.vnappmob.com/api/request_api_key?scope=exchange_rate");
+		curl_easy_setopt(c, CURLOPT_HTTPGET, 1);
+		curl_easy_setopt(c, CURLOPT_HTTPHEADER, headers);
+
+		curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, WriteCallback);
+		curl_easy_setopt(c, CURLOPT_WRITEDATA, &readBuffer);
+		CURLcode res = curl_easy_perform(c);
+		if (res != CURLE_OK)
+		{
+			cout << "error";
+		}
+		else
+		{
+			long responseCode;
+			curl_easy_getinfo(c, CURLINFO_RESPONSE_CODE, &responseCode);
+		}
+		curl_easy_cleanup(c);
+	}
+	readBuffer = readBuffer.substr(12, readBuffer.length());
+	readBuffer = readBuffer.substr(0, readBuffer.length() - 3);
+	return readBuffer;
+}
+string getHTTPRequest() {
 	CURL* curl;
 	CURLcode res;
 	std::string readBuffer;
-	std::string apikey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2Mjg2OTc4ODksImlhdCI6MTYyNzQwMTg4OSwic2NvcGUiOiJleGNoYW5nZV9yYXRlIiwicGVybWlzc2lvbiI6MH0.CNOXvN2gZPvSM0VqUtaLobYKL4e6RsmNYw8kd-LC8Go";
+	std::string apikey = getAPIkey();
 
 	std::string apiHeader = "Authorization: Bearer " + apikey;
 
@@ -107,7 +141,7 @@ string callAPI() {
 	{
 		std::string url = "https://vapi.vnappmob.com/api/v2/exchange_rate/sbv";
 
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+		//curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
 		curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
@@ -129,7 +163,7 @@ string callAPI() {
 }
 vector <Currency> onlineData() {
 	ofstream ofs("result.txt");
-	ofs << callAPI();
+	ofs << getHTTPRequest();
 	ofs.close();
 	string ch;
 	double temp;
