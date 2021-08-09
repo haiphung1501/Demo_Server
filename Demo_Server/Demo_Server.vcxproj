@@ -101,6 +101,7 @@
     <Text Include="DATE.txt" />
     <Text Include="EUR.txt" />
     <Text Include="login.txt" />
+    <Text Include="logo.txt" />
     <Text Include="USD.txt" />
     <Text Include="YEN.txt" />
   </ItemGroup>

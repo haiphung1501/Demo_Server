@@ -105,9 +105,7 @@ DWORD WINAPI function_cal(LPVOID arg)
 		do {
 			fflush(stdin);
 			mysock.Receive(&choice_dummy, sizeof(choice_dummy), 0);
-			if (choice_dummy == 0)
-				break;
-			else if (choice_dummy == 1) {
+			if (choice_dummy == 1) {
 				mysock.Receive(&choice_dummy, sizeof(choice_dummy), 0);
 				if (choice_dummy != 0) {
 					Currency cur = FindClientCur(choice_dummy, onlineData());
@@ -148,6 +146,7 @@ DWORD WINAPI function_cal(LPVOID arg)
 
 int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 {
+	Logo();
 	int nRetCode = 0;
 
 	HMODULE hModule = ::GetModuleHandle(NULL);
@@ -170,12 +169,11 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 			HANDLE threadStatus;
 			int port;
 			int clients;
-			char sAdd[30];
-			cout << "Enter port to host: ";
-			cin >> port;
-			cin.ignore();
+			char sAdd[100];
 			cout << "Enter IP to host: ";
 			cin.getline(sAdd, 100);
+			cout << "Enter port to host: ";
+			cin >> port;
 			cout << "Enter number of Client(s): ";
 			cin >> clients;
 			CSocket* s = new CSocket[clients];
@@ -185,7 +183,9 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 				cout << "Server is Listening from Clients\n";
 				server.Listen();
 				server.Accept(s[i]);
+				Textcolor(10);
 				cout << "Accepted Client number " << i + 1 << endl;
+				Textcolor(7);
 				//Khoi tao con tro Socket
 				SOCKET* hConnected = new SOCKET();
 				//Chuyá»ƒn Ä‘á»i CSocket thanh Socket
@@ -199,7 +199,9 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 			string stop_sign;
 			cin.ignore();
 			while (1) {
+				Textcolor(12);
 				cout << "Press 'stop' to stop server and send notifications to all clients\n";
+				Textcolor(7);
 				getline(cin, stop_sign);
 				if (stop_sign == "stop") {
 					for (int i = 0; i < clients; ++i) {

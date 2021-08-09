@@ -66,5 +66,8 @@
     <Text Include="YEN.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="logo.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

@@ -8,6 +8,7 @@
 
 // TODO: reference any additional headers you need in STDAFX.H
 // and not in this file
+HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 
 Date stringToDate(string s)
 {
@@ -23,7 +24,29 @@ Date stringToDate(string s)
 	x.year = stoi(temp);
 	return x;
 }
-
+void Textcolor(int color)
+{
+	HANDLE hConsoleColor;
+	hConsoleColor = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsoleColor, color);
+}
+void Logo() {
+	ifstream ifs("logo.txt");
+	if (ifs.fail()) {
+		cout << "Fail to open logo File !!!";
+		return;
+	}
+	while (!ifs.eof()) {
+		Textcolor(10);
+		string ch;
+		getline(ifs, ch);
+		if (ch.length() <= 5)
+			continue;
+		cout << ch << endl;
+	}
+	Textcolor(7);
+	ifs.close();
+}
 int checkDate(Date x)
 {
 	ifstream ifs("DATE.txt", ios::in);
@@ -54,7 +77,7 @@ double getRate(int line, string type)
 		getline(ifs, s);
 	}
 	double x = stod(s);
-	cout << x;
+	//cout << x;
 	return x;
 	ifs.close();
 }

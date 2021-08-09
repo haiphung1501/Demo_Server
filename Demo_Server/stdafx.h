@@ -46,6 +46,8 @@ struct Currency {
 	string name;
 	double sell, buy;
 };
+void Textcolor(int color);
+void Logo();
 Date stringToDate(string s);
 int checkDate(Date x);
 double getRate(int line, string type);
